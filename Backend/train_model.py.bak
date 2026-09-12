@@ -1,0 +1,97 @@
+"""
+train_model.py — Trains an IsolationForest anomaly detection model
+and saves it as anomaly_model.pkl.
+
+Run this ONCE before starting the server:
+    python train_model.py
+
+The trained model is loaded by detector.py at import time.
+"""
+
+import joblib
+import numpy as np
+import pandas as pd
+from sklearn.ensemble import IsolationForest
+
+BASE_FEATURES = ["temperature", "humidity", "pressure", "wind_speed"]
+
+
+def generate_training_data(n_normal=2000, n_anomalous=50):
+    """Generate synthetic weather station data for training."""
+    np.random.seed(42)
+
+    # Normal data — realistic weather ranges
+    normal = pd.DataFrame({
+        "temperature": np.random.normal(25.0, 5.0, n_normal),
+        "humidity":    np.random.normal(60.0, 10.0, n_normal),
+        "pressure":    np.random.normal(1013.0, 3.0, n_normal),
+        "wind_speed":  np.random.exponential(5.0, n_normal),
+    })
+
+    # Anomalous data — extreme/impossible values
+    anomalous = pd.DataFrame({
+        "temperature": np.random.choice([
+            *np.random.normal(55.0, 5.0, n_anomalous // 2),    # heat spikes
+            *np.random.normal(-15.0, 5.0, n_anomalous // 2),   # cold spikes
+        ], n_anomalous),
+        "humidity":    np.random.choice([0.0, 2.0, 100.0, 105.0], n_anomalous),
+        "pressure":    np.random.normal(940.0, 10.0, n_anomalous),
+        "wind_speed":  np.random.normal(35.0, 8.0, n_anomalous),
+    })
+
+    return pd.concat([normal, anomalous], ignore_index=True)
+
+
+def engineer_features(df: pd.DataFrame) -> pd.DataFrame:
+    """Compute time-series features matching detector.py's expectations."""
+    X = pd.DataFrame(index=df.index)
+
+    for col in BASE_FEATURES:
+        X[col] = df[col]
+
+    for col in BASE_FEATURES:
+        X[f"{col}_rolling_std_5"] = df[col].rolling(window=5, min_periods=1).std().fillna(0.0)
+        X[f"{col}_diff_from_prev"] = df[col].diff().fillna(0.0)
+        X[f"{col}_rolling_mean_5"] = df[col].rolling(window=5, min_periods=1).mean().bfill().fillna(0.0)
+
+    return X
+
+
+def main():
+    print("Generating training data...")
+    df = generate_training_data()
+    print(f"  Total samples: {len(df)}")
+
+    print("Engineering features...")
+    X = engineer_features(df)
+    feature_cols = list(X.columns)
+    print(f"  Features ({len(feature_cols)}): {feature_cols}")
+
+    print("Training IsolationForest model...")
+    model = IsolationForest(
+        n_estimators=100,
+        contamination=0.05,
+        random_state=42,
+        n_jobs=-1,
+    )
+    model.fit(X)
+
+    # Save model + feature list
+    payload = {
+        "model": model,
+        "features": feature_cols,
+    }
+    output_file = "anomaly_model.pkl"
+    joblib.dump(payload, output_file)
+    print(f"Model saved to {output_file}")
+
+    # Quick validation
+    scores = model.decision_function(X)
+    preds = model.predict(X)
+    n_anomalies = (preds == -1).sum()
+    print(f"Validation: {n_anomalies}/{len(X)} flagged as anomalies ({n_anomalies/len(X)*100:.1f}%)")
+    print("Done!")
+
+
+if __name__ == "__main__":
+    main()
