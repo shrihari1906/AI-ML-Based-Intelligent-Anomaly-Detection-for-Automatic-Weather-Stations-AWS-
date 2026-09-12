@@ -1,0 +1,31 @@
+======================================================================
+END-TO-END VERIFICATION TEST
+======================================================================
+
+GET /api/readings/AWS_001 => 200, 10 readings
+  [1] 2026-09-12T10:10:00  T=60.0  H=10.0  P=940.0  W=30.0
+  [2] 2026-09-12T10:09:00  T=24.0  H=69.0  P=1013.0  W=4.8
+  [3] 2026-09-12T10:08:00  T=23.7  H=68.0  P=1013.0  W=4.6
+  [4] 2026-09-12T10:07:00  T=23.5  H=67.0  P=1013.0  W=4.4
+  [5] 2026-09-12T10:06:00  T=23.2  H=66.0  P=1013.0  W=4.2
+  [6] 2026-09-12T10:05:00  T=23.0  H=65.0  P=1013.0  W=4.0
+  [7] 2026-09-12T10:04:00  T=22.8  H=64.0  P=1013.0  W=3.8
+  [8] 2026-09-12T10:03:00  T=22.6  H=63.0  P=1013.0  W=3.6
+  [9] 2026-09-12T10:02:00  T=22.3  H=62.0  P=1013.0  W=3.4
+  [10] 2026-09-12T10:01:00  T=22.0  H=61.0  P=1013.0  W=3.2
+
+GET /api/alerts => 200, 1 anomaly alerts
+  station=AWS_001  time=2026-09-12T10:10:00
+  is_anomaly=True  score=-0.2649
+  reason=temperature out of range (60.0 °C); wind speed spike (30.0 m/s); pressure out of range (940.0 hPa)
+
+GET /api/readings/AWS_999 => 200, response=[]
+
+======================================================================
+SUMMARY:
+  Readings for AWS_001: 10 (expected 10)
+  Most recent reading temp: 60.0 (expected 60.0)
+  Anomaly alerts: 1 (expected >= 1)
+  First alert reason: temperature out of range (60.0 °C); wind speed spike (30.0 m/s); pressure out of range (940.0 hPa)
+  AWS_999 empty: True (expected True)
+======================================================================
