@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AWS Monitor - AI/ML Based Anomaly Detection</title>
+    <meta name="description" content="Real-time monitoring of weather stations with AI/ML-based anomaly detection for Automatic Weather Stations.">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+    
+    <!-- Leaflet CSS for Map -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="/static/css/styles.css">
+</head>
+<body>
+    
+    <!-- Top Navigation Bar -->
+    <header class="top-navbar">
+        <div class="brand-wrapper">
+            <!-- Sun + Cloud Icon -->
+            <div class="brand-icon-svg">
+                <svg width="34" height="34" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <!-- Sun rays -->
+                    <circle cx="14" cy="14" r="7" fill="#FBBF24"/>
+                    <line x1="14" y1="2" x2="14" y2="5" stroke="#FBBF24" stroke-width="2" stroke-linecap="round"/>
+                    <line x1="14" y1="23" x2="14" y2="26" stroke="#FBBF24" stroke-width="2" stroke-linecap="round"/>
+                    <line x1="2" y1="14" x2="5" y2="14" stroke="#FBBF24" stroke-width="2" stroke-linecap="round"/>
+                    <line x1="23" y1="14" x2="26" y2="14" stroke="#FBBF24" stroke-width="2" stroke-linecap="round"/>
+                    <line x1="5.5" y1="5.5" x2="7.5" y2="7.5" stroke="#FBBF24" stroke-width="2" stroke-linecap="round"/>
+                    <line x1="20.5" y1="7.5" x2="22.5" y2="5.5" stroke="#FBBF24" stroke-width="2" stroke-linecap="round"/>
+                    <!-- Cloud -->
+                    <path d="M12 28C9.23858 28 7 25.7614 7 23C7 20.48 8.84 18.39 11.3 18.06C12.18 14.54 15.34 12 19 12C23.4183 12 27 15.5817 27 20C29.2091 20 31 21.7909 31 24C31 26.2091 29.2091 28 27 28H12Z" fill="#E2E8F0"/>
+                    <path d="M12 27C9.5 27 7.5 25 7.5 22.5C7.5 20.2 9.1 18.3 11.3 18.05C12.1 14.8 15 12.5 18.5 12.5C22.6 12.5 26 15.9 26 20C28.2 20 30 21.8 30 24C30 26.2 28.2 27 26 27H12Z" fill="#BAE6FD"/>
+                </svg>
+            </div>
+            <div class="brand-text-block">
+                <span class="brand-title">AWS Monitor</span>
+                <span class="brand-subtitle">AI/ML Based Anomaly Detection</span>
+            </div>
+        </div>
+
+        <div class="top-nav-right">
+            <!-- Notification Bell with '3' Badge -->
+            <button class="notification-bell-btn" title="3 New Notifications">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+                    <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+                </svg>
+                <span class="notif-badge">3</span>
+            </button>
+
+            <!-- User Profile Avatar & Dropdown -->
+            <div class="user-profile-btn">
+                <div class="user-avatar-circle">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+                    </svg>
+                </div>
+                <span>Abhishek</span>
+                <span style="font-size: 0.75rem; color: #94a3b8; margin-left: 2px;">⌵</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- App Body (Sidebar + Content) -->
+    <div class="app-body">
+        
+        <!-- Left Sidebar Navigation -->
+        <aside class="sidebar">
+            <ul class="sidebar-nav-list">
+                <li>
+                    <a class="nav-item-link active" data-tab="dashboard">
+                        <span class="nav-item-icon">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
+                            </svg>
+                        </span>
+                        <span>Dashboard</span>
+                    </a>
+                </li>
+                <li>
+                    <a class="nav-item-link" data-tab="live-data">
+                        <span class="nav-item-icon">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M4 9h4v11H4zm6-5h4v16h-4zm6 9h4v7h-4z"/>
+                            </svg>
+                        </span>
+                        <span>Live Data</span>
+                    </a>
+                </li>
+                <li>
+                    <a class="nav-item-link" data-tab="analytics">
+                        <span class="nav-item-icon">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
+                            </svg>
+                        </span>
+                        <span>Analytics</span>
+                    </a>
+                </li>
+                <li>
+                    <a class="nav-item-link" data-tab="anomalies">
+                        <span class="nav-item-icon">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z"/>
+                            </svg>
+                        </span>
+                        <span>Anomalies</span>
+                    </a>
+                </li>
+                <li>
+                    <a class="nav-item-link" data-tab="stations">
+                        <span class="nav-item-icon">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
+                            </svg>
+                        </span>
+                        <span>Stations</span>
+                    </a>
+                </li>
+                <li>
+                    <a class="nav-item-link" data-tab="reports">
+                        <span class="nav-item-icon">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/>
+                            </svg>
+                        </span>
+                        <span>Reports</span>
+                    </a>
+                </li>
+                <li>
+                    <a class="nav-item-link" data-tab="settings">
+                        <span class="nav-item-icon">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/>
+                            </svg>
+                        </span>
+                        <span>Settings</span>
+                    </a>
+                </li>
+            </ul>
+
+            <div class="sidebar-footer-quote">
+                <span class="leaf-icon">🍃</span>
+                <div>
+                    <div>Better Data</div>
+                    <div>Safer Tomorrow</div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Dashboard View Container -->
+        <main class="main-dashboard-area">
+            
+            <!-- Tab 1: Primary Dashboard (Matches Screenshot Exactly) -->
+            <div id="panel_dashboard" class="tab-content-panel active">
+                
+                <!-- Dashboard Header -->
+                <div class="dashboard-header-row">
+                    <div>
+                        <h1 class="dash-main-title">Dashboard</h1>
+                        <p class="dash-main-subtitle">Real-time monitoring of weather stations with AI/ML-based anomaly detection</p>
+                    </div>
+                    <div id="headerClock" class="dash-clock-pill">
+                        Tue, 5 Sep 2026 | 10:24 AM
+                    </div>
+                </div>
+
+                <!-- Top 5 Metric Cards -->
+                <div class="metrics-grid-5col">
+                    
+                    <!-- 1. Temperature Card -->
+                    <div class="metric-card">
+                        <div class="metric-icon-circle icon-temp">
+                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M14 14.76V3.5a2.5 2.5 0 0 0-5 0v11.26a4.5 4.5 0 1 0 5 0z"></path>
+                            </svg>
+                        </div>
+                        <div class="metric-content">
+                            <span class="metric-label">Temperature</span>
+                            <div class="metric-value-row">
+                                <span id="metricVal_temp" class="metric-number">28.4 °C</span>
+                                <span id="metricPill_temp" class="status-pill pill-normal">Normal</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 2. Humidity Card -->
+                    <div class="metric-card">
+                        <div class="metric-icon-circle icon-hum">
+                            <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"/>
+                            </svg>
+                        </div>
+                        <div class="metric-content">
+                            <span class="metric-label">Humidity</span>
+                            <div class="metric-value-row">
+                                <span id="metricVal_hum" class="metric-number">65 %</span>
+                                <span id="metricPill_hum" class="status-pill pill-normal">Normal</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 3. Pressure Card -->
+                    <div class="metric-card">
+                        <div class="metric-icon-circle icon-press">
+                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                                <circle cx="12" cy="12" r="10"></circle>
+                                <polyline points="12 6 12 12 16 14"></polyline>
+                            </svg>
+                        </div>
+                        <div class="metric-content">
+                            <span class="metric-label">Pressure</span>
+                            <div class="metric-value-row">
+                                <span id="metricVal_press" class="metric-number">1012 hPa</span>
+                                <span id="metricPill_press" class="status-pill pill-normal">Normal</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 4. Wind Speed Card -->
+                    <div class="metric-card">
+                        <div class="metric-icon-circle icon-wind">
+                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M9.59 4.59A2 2 0 1 1 11 8H2m10.59 11.41A2 2 0 1 0 14 16H2m15.73-8.27A2.5 2.5 0 1 1 19.5 12H2"></path>
+                            </svg>
+                        </div>
+                        <div class="metric-content">
+                            <span class="metric-label">Wind Speed</span>
+                            <div class="metric-value-row">
+                                <span id="metricVal_wind" class="metric-number">12.6 km/h</span>
+                                <span id="metricPill_wind" class="status-pill pill-normal">Normal</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 5. Rainfall Card -->
+                    <div class="metric-card">
+                        <div class="metric-icon-circle icon-rain">
+                            <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M4 10a4 4 0 0 1 4-4 5 5 0 0 1 9.9 1A3.5 3.5 0 0 1 21 10.5a3.5 3.5 0 0 1-3.5 3.5H5a4 4 0 0 1-1-4zm4 6v4m4-4v4m4-4v4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                            </svg>
+                        </div>
+                        <div class="metric-content">
+                            <span class="metric-label">Rainfall</span>
+                            <div class="metric-value-row">
+                                <span id="metricVal_rain" class="metric-number">0.0 mm</span>
+                                <span id="metricPill_rain" class="status-pill pill-normal">Normal</span>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- Middle Row (2 Columns: Chart + Map) -->
+                <div class="middle-grid-2col">
+                    
+                    <!-- Left: Temperature Chart (Last 24 Hours) -->
+                    <div class="dashboard-card">
+                        <div class="card-title-header">
+                            <div class="card-title-text">
+                                <span class="card-title-icon" style="color: #0284c7;">🌡️</span>
+                                <span>Temperature (Last 24 Hours)</span>
+                            </div>
+                        </div>
+                        <div class="chart-canvas-wrapper">
+                            <canvas id="chartTemp24h"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Right: Station Location Map -->
+                    <div class="dashboard-card">
+                        <div class="card-title-header">
+                            <div class="card-title-text">
+                                <span class="card-title-icon" style="color: #0284c7;">🗺️</span>
+                                <span>Station Location</span>
+                            </div>
+                        </div>
+                        <div class="map-canvas-wrapper">
+                            <div id="stationMap"></div>
+                            <div class="map-legend-overlay">
+                                <div class="legend-item">
+                                    <span class="legend-dot dot-normal"></span>
+                                    <span>Normal</span>
+                                </div>
+                                <div class="legend-item">
+                                    <span class="legend-dot dot-anomaly"></span>
+                                    <span>Anomaly</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- Bottom Row: Recent Anomalies Table -->
+                <div class="anomalies-card">
+                    <div class="anomalies-header">
+                        <div class="card-title-text">
+                            <span class="card-title-icon" style="color: #ef4444;">⚠️</span>
+                            <span>Recent Anomalies</span>
+                        </div>
+                        <a class="view-all-link" onclick="document.querySelector('[data-tab=anomalies]').click()">View All</a>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="custom-table">
+                            <thead>
+                                <tr>
+                                    <th>Time</th>
+                                    <th>Station ID</th>
+                                    <th>Parameter</th>
+                                    <th>Value</th>
+                                    <th>Severity</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="recentAnomaliesTbody">
+                                <!-- Populated dynamically by app.js matching the exact records -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Tab 2: Anomalies & Fault Injection Sandbox (For testing) -->
+            <div id="panel_anomalies" class="tab-content-panel">
+                <div class="dashboard-header-row">
+                    <div>
+                        <h1 class="dash-main-title">Interactive Anomaly Sandbox</h1>
+                        <p class="dash-main-subtitle">Test and observe AI/ML multi-tier anomaly detection reactions in real time</p>
+                    </div>
+                </div>
+
+                <div class="fault-sandbox-bar">
+                    <span style="font-size:0.85rem; font-weight:700; color:var(--text-dark); margin-right: 0.5rem;">⚡ Trigger Test Faults:</span>
+                    <button class="btn-sandbox" onclick="triggerFault('SPIKE', 'temperature', 14.0, 25, 'Temperature Spike (+14°C)')">
+                        🌡️ Temp Spike (+14°C)
+                    </button>
+                    <button class="btn-sandbox" onclick="triggerFault('FLATLINE', 'humidity', 75.0, 30, 'Humidity Lockup / Flatline')">
+                        ❄️ Freeze Humidity (75%)
+                    </button>
+                    <button class="btn-sandbox" onclick="triggerFault('INCONSISTENCY', 'dew_point', 0, 20, 'Dew Point > Temp')">
+                        📐 Dew Point > Temp Violation
+                    </button>
+                    <button class="btn-sandbox" onclick="triggerFault('DRIFT', 'pressure', -0.3, 40, 'Barometer Drift')">
+                        📉 Barometer Drift
+                    </button>
+                    <button class="btn-sandbox" onclick="triggerFault('OUT_OF_BOUNDS', 'solar_radiation', 1800.0, 15, 'Solar Pyranometer Error')">
+                        ☀️ Solar Extreme (1800 W/m²)
+                    </button>
+                    <button class="btn-sandbox btn-sandbox-clear" onclick="clearFaults()">
+                        🧹 Clear All Faults
+                    </button>
+                </div>
+
+                <div class="anomalies-card" style="margin-top: 1rem;">
+                    <div class="anomalies-header">
+                        <div class="card-title-text">
+                            <span>Comprehensive Historical Anomaly Logs</span>
+                        </div>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="custom-table">
+                            <thead>
+                                <tr>
+                                    <th>Time</th>
+                                    <th>Station ID</th>
+                                    <th>Parameter</th>
+                                    <th>Value</th>
+                                    <th>Severity</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="fullAnomaliesTbody">
+                                <tr><td>05 Sep 2026, 09:12 AM</td><td style="font-family: var(--font-mono); font-weight: 600;">AWS-003</td><td>Temperature</td><td style="font-family: var(--font-mono); font-weight: 700;">42.3 °C</td><td><span class="tbl-badge badge-sev-high">High</span></td><td><span class="tbl-badge badge-status-investigating">Investigating</span></td></tr>
+                                <tr><td>05 Sep 2026, 07:45 AM</td><td style="font-family: var(--font-mono); font-weight: 600;">AWS-002</td><td>Wind Speed</td><td style="font-family: var(--font-mono); font-weight: 700;">76.1 km/h</td><td><span class="tbl-badge badge-sev-med">Medium</span></td><td><span class="tbl-badge badge-status-resolved">Resolved</span></td></tr>
+                                <tr><td>04 Sep 2026, 06:20 PM</td><td style="font-family: var(--font-mono); font-weight: 600;">AWS-005</td><td>Pressure</td><td style="font-family: var(--font-mono); font-weight: 700;">980 hPa</td><td><span class="tbl-badge badge-sev-med">Medium</span></td><td><span class="tbl-badge badge-status-resolved">Resolved</span></td></tr>
+                                <tr><td>04 Sep 2026, 02:15 PM</td><td style="font-family: var(--font-mono); font-weight: 600;">AWS-001</td><td>Humidity</td><td style="font-family: var(--font-mono); font-weight: 700;">12 %</td><td><span class="tbl-badge badge-sev-high">High</span></td><td><span class="tbl-badge badge-status-investigating">Investigating</span></td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab 3: Reports & Batch CSV Analysis -->
+            <div id="panel_reports" class="tab-content-panel">
+                <div class="dashboard-header-row">
+                    <div>
+                        <h1 class="dash-main-title">Batch Reports & CSV Quality Control</h1>
+                        <p class="dash-main-subtitle">Upload station historical datasets to compute WMO compliance scorecards</p>
+                    </div>
+                </div>
+
+                <div class="dashboard-card" style="margin-top: 1rem;">
+                    <div style="display:flex; gap: 1rem; margin-bottom: 1rem; flex-wrap: wrap;">
+                        <button class="btn-sandbox" onclick="runBenchmarkInReports()" style="background-color: var(--color-primary); color: #fff; border:none; padding: 0.6rem 1.2rem;">
+                            🚀 Run 800-Record Benchmark Test
+                        </button>
+                        <a href="/api/analyze/download-sample" class="btn-sandbox" download style="text-decoration:none;">
+                            📥 Download Benchmark Dataset (CSV)
+                        </a>
+                    </div>
+                    <div id="reportsBenchmarkStatus" style="font-size: 0.9rem; color: var(--text-muted);">
+                        Click 'Run Benchmark Test' to scan dataset against WMO Range, Step, Flatline, and Neural Autoencoder models.
+                    </div>
+                    <div id="reportsScorecardGrid" style="display:none; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin-top: 1.5rem;">
+                        <div class="metric-card" style="flex-direction:column; align-items:flex-start;">
+                            <span class="metric-label">TOTAL RECORDS</span>
+                            <span id="repTotal" class="metric-number">800</span>
+                        </div>
+                        <div class="metric-card" style="flex-direction:column; align-items:flex-start;">
+                            <span class="metric-label">VALID (CLEAN)</span>
+                            <span id="repClean" class="metric-number" style="color:#16a34a;">712</span>
+                        </div>
+                        <div class="metric-card" style="flex-direction:column; align-items:flex-start;">
+                            <span class="metric-label">FLAGGED ANOMALIES</span>
+                            <span id="repAnom" class="metric-number" style="color:#dc2626;">88</span>
+                        </div>
+                        <div class="metric-card" style="flex-direction:column; align-items:flex-start;">
+                            <span class="metric-label">WMO COMPLIANCE</span>
+                            <span id="repPct" class="metric-number" style="color:#0284c7;">89.0%</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab 4: Live Data / Analytics / Stations (Additional views) -->
+            <div id="panel_live-data" class="tab-content-panel">
+                <div class="dashboard-header-row">
+                    <div>
+                        <h1 class="dash-main-title">Live Telemetry Stream</h1>
+                        <p class="dash-main-subtitle">Continuous sub-hourly sensor streams with active QC validation</p>
+                    </div>
+                </div>
+                <div class="anomalies-card" style="margin-top: 1rem;">
+                    <div class="card-title-text" style="margin-bottom: 0.75rem;">
+                        <span>Monitored AWS Stations Overview</span>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="custom-table">
+                            <thead>
+                                <tr><th>Station ID</th><th>Name</th><th>Location</th><th>Elevation</th><th>Status</th></tr>
+                            </thead>
+                            <tbody>
+                                <tr><td>AWS-001</td><td>Bengaluru Urban AWS</td><td>Bengaluru (12.97° N, 77.59° E)</td><td>920 m</td><td><span class="status-pill pill-normal">Normal</span></td></tr>
+                                <tr><td>AWS-002</td><td>Mangaluru Coastal AWS</td><td>Mangaluru (12.91° N, 74.86° E)</td><td>14 m</td><td><span class="status-pill pill-normal">Normal</span></td></tr>
+                                <tr><td>AWS-003</td><td>Mysuru Central AWS</td><td>Mysuru (12.30° N, 76.64° E)</td><td>763 m</td><td><span class="status-pill pill-anomaly">Anomaly</span></td></tr>
+                                <tr><td>AWS-004</td><td>Madikeri Coorg Highland AWS</td><td>Madikeri (12.42° N, 75.74° E)</td><td>1150 m</td><td><span class="status-pill pill-normal">Normal</span></td></tr>
+                                <tr><td>AWS-005</td><td>Dharwad Inland AWS</td><td>Dharwad (15.46° N, 75.01° E)</td><td>750 m</td><td><span class="status-pill pill-normal">Normal</span></td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div id="panel_analytics" class="tab-content-panel">
+                <div class="dashboard-header-row">
+                    <div>
+                        <h1 class="dash-main-title">AI/ML Multi-Tier Analytics</h1>
+                        <p class="dash-main-subtitle">Model diagnostics, Autoencoder reconstruction loss, and thermodynamic manifold tracking</p>
+                    </div>
+                </div>
+                <div class="dashboard-card" style="margin-top: 1rem;">
+                    <div class="card-title-text" style="margin-bottom: 1rem;">
+                        <span>🧠 Detection Layer Attribution Breakdown</span>
+                    </div>
+                    <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem;">
+                        <div style="background:#f8fafc; padding:1rem; border-radius:10px; border:1px solid #e2e8f0;">
+                            <div style="font-weight:700; font-size:0.85rem; color:#0f172a; margin-bottom:4px;">Layer 1: WMO QC Rules (40%)</div>
+                            <div style="font-size:0.75rem; color:#64748b;">Range limits, step rate tests, persistence lockup, and thermodynamic Magnus invariants.</div>
+                        </div>
+                        <div style="background:#f8fafc; padding:1rem; border-radius:10px; border:1px solid #e2e8f0;">
+                            <div style="font-weight:700; font-size:0.85rem; color:#0f172a; margin-bottom:4px;">Layer 2: Statistical Filters (25%)</div>
+                            <div style="font-size:0.75rem; color:#64748b;">Hampel MAD outlier filters, dynamic rolling Z-scores, and EWMA sensor drift tracking.</div>
+                        </div>
+                        <div style="background:#f8fafc; padding:1rem; border-radius:10px; border:1px solid #e2e8f0;">
+                            <div style="font-weight:700; font-size:0.85rem; color:#0f172a; margin-bottom:4px;">Layer 3: Neural Autoencoder (35%)</div>
+                            <div style="font-size:0.75rem; color:#64748b;">Deep non-linear physical correlation modeling and per-sensor reconstruction loss decomposition.</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="panel_stations" class="tab-content-panel">
+                <div class="dashboard-header-row">
+                    <div>
+                        <h1 class="dash-main-title">Weather Stations Network</h1>
+                        <p class="dash-main-subtitle">Automatic Weather Stations telemetry and calibration metadata</p>
+                    </div>
+                </div>
+                <div class="middle-grid-2col" style="margin-top:1rem;">
+                    <div class="dashboard-card">
+                        <div class="card-title-text" style="margin-bottom:0.75rem;">Station Metadata</div>
+                        <p style="font-size:0.84rem; color:var(--text-muted);">5 active stations transmitting 5-minute meteorological packets conforming to WMO-No. 8 standards.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div id="panel_settings" class="tab-content-panel">
+                <div class="dashboard-header-row">
+                    <div>
+                        <h1 class="dash-main-title">System Settings & Thresholds</h1>
+                        <p class="dash-main-subtitle">Configure WMO limits, AI contamination ratios, and alert webhooks</p>
+                    </div>
+                </div>
+                <div class="dashboard-card" style="margin-top:1rem;">
+                    <div class="card-title-text" style="margin-bottom:0.75rem;">Alert Configurations</div>
+                    <p style="font-size:0.84rem; color:var(--text-muted);">Notification threshold: High & Medium anomalies dispatched to operations dispatch center.</p>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+    
+    <!-- App Scripts -->
+    <script src="/static/js/charts.js"></script>
+    <script src="/static/js/app.js"></script>
+
+    <script>
+        async function runBenchmarkInReports() {
+            const statusEl = document.getElementById("reportsBenchmarkStatus");
+            const gridEl = document.getElementById("reportsScorecardGrid");
+            statusEl.innerText = "Running AI/ML QC batch scan on 800 benchmark records...";
+            try {
+                const res = await fetch("/api/analyze/benchmark-sample");
+                const data = await res.json();
+                document.getElementById("repTotal").innerText = data.total_records;
+                document.getElementById("repClean").innerText = data.clean_records;
+                document.getElementById("repAnom").innerText = data.anomalous_records;
+                document.getElementById("repPct").innerText = `${data.wmo_compliance_percentage}%`;
+                statusEl.innerText = "Scan completed successfully.";
+                gridEl.style.display = "grid";
+            } catch (e) {
+                statusEl.innerText = "Error: " + e.message;
+            }
+        }
+    </script>
+</body>
+</html>
