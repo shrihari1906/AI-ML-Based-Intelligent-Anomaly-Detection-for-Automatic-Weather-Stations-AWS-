@@ -1,0 +1,208 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* CSS Theme Variables */
+:root {
+  /* Default: Light Mode Theme (high-contrast, deep dark slate text) */
+  --bg-app: #F1F5F9;
+  --bg-surface-dim: #E2E8F0;
+  --bg-surface-container: #FFFFFF;
+  --bg-surface-container-low: #F8FAFC;
+  --bg-surface-container-high: #E2E8F0;
+  --bg-surface-container-highest: #CBD5E1;
+  --bg-surface-container-lowest: #EEF2F6;
+  --border-outline-variant: #CBD5E1;
+
+  --text-on-surface: #0F172A;        /* Slate-900: High-contrast, crystal clear dark text */
+  --text-on-surface-variant: #334155;/* Slate-700: Rich dark legible secondary text */
+  --text-outline: #475569;           /* Slate-600: Highly visible muted text */
+}
+
+.dark {
+  /* Dark Mode Theme (deep atmospheric dusk slate) */
+  --bg-app: #14161C;
+  --bg-surface-dim: #101217;
+  --bg-surface-container: #1C1F28;
+  --bg-surface-container-low: #181A22;
+  --bg-surface-container-high: #222632;
+  --bg-surface-container-highest: #2B2F3D;
+  --bg-surface-container-lowest: #0F1116;
+  --border-outline-variant: #2B2F3A;
+
+  --text-on-surface: #F2F3F5;
+  --text-on-surface-variant: #9BA3AF;
+  --text-outline: #6B7280;
+}
+
+@layer base {
+  html, body {
+    margin: 0;
+    padding: 0;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  }
+  body {
+    overscroll-behavior: none;
+    transition: background-color 0.2s ease, color 0.2s ease;
+    background-color: var(--bg-app);
+    color: var(--text-on-surface);
+  }
+  main > :first-child {
+    margin-top: 0 !important;
+  }
+  main > :last-child {
+    margin-bottom: 0 !important;
+  }
+}
+
+/* Custom scrollbar hiding */
+::-webkit-scrollbar {
+  display: none;
+}
+
+/* =========================================================
+   LIGHT MODE COMPREHENSIVE TEXT & ELEMENT CONTRAST ENHANCEMENTS
+   Ensures 100% readability across every card, table, & control
+   ========================================================= */
+
+html:not(.dark) {
+  color-scheme: light;
+}
+
+/* Card surfaces in Light Mode get crisp white background and clean shadow */
+html:not(.dark) .bg-surface-container {
+  background-color: #FFFFFF !important;
+  border-color: #CBD5E1 !important;
+  box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.06), 0 1px 2px -1px rgb(0 0 0 / 0.04) !important;
+}
+
+html:not(.dark) .bg-surface-container-low {
+  background-color: #F8FAFC !important;
+  border-color: #E2E8F0 !important;
+}
+
+html:not(.dark) .bg-surface-container-lowest {
+  background-color: #EEF2F6 !important;
+  border-color: #CBD5E1 !important;
+}
+
+html:not(.dark) .bg-surface-container-high {
+  background-color: #E2E8F0 !important;
+  border-color: #94A3B8 !important;
+}
+
+/* Force dark text for all elements when in Light Mode */
+html:not(.dark) h1,
+html:not(.dark) h2,
+html:not(.dark) h3,
+html:not(.dark) h4,
+html:not(.dark) .text-on-surface,
+html:not(.dark) .text-\[\#F2F3F5\],
+html:not(.dark) [class*="text-[#F2F3F5]"] {
+  color: #0F172A !important;
+}
+
+html:not(.dark) p,
+html:not(.dark) .text-on-surface-variant,
+html:not(.dark) .text-\[\#9BA3AF\],
+html:not(.dark) .text-\[\#9CA3AF\],
+html:not(.dark) [class*="text-[#9BA3AF]"],
+html:not(.dark) [class*="text-[#9CA3AF]"] {
+  color: #334155 !important;
+}
+
+html:not(.dark) .text-outline,
+html:not(.dark) .text-\[\#6B7280\],
+html:not(.dark) [class*="text-[#6B7280]"] {
+  color: #475569 !important;
+}
+
+/* Buttons that had text-white in dark mode become high-contrast in light mode unless colored */
+html:not(.dark) button:not(.bg-primary):not(.bg-\[\#D9534F\]):not(.bg-\[\#2563EB\]):not(.bg-\[\#EF4444\]) .text-white,
+html:not(.dark) button:not(.bg-primary):not(.bg-\[\#D9534F\]):not(.bg-\[\#2563EB\]):not(.bg-\[\#EF4444\]).text-white {
+  color: #0F172A !important;
+}
+
+/* Form Controls: Inputs, Selects, Options */
+html:not(.dark) select,
+html:not(.dark) input,
+html:not(.dark) textarea {
+  color: #0F172A !important;
+  background-color: #FFFFFF !important;
+  border-color: #CBD5E1 !important;
+}
+
+html:not(.dark) select option {
+  background-color: #FFFFFF !important;
+  color: #0F172A !important;
+}
+
+/* Tables in Light Mode */
+html:not(.dark) table {
+  color: #0F172A !important;
+}
+
+html:not(.dark) thead tr,
+html:not(.dark) th {
+  background-color: #F1F5F9 !important;
+  color: #334155 !important;
+  border-color: #CBD5E1 !important;
+  font-weight: 600 !important;
+}
+
+html:not(.dark) tbody tr {
+  background-color: #FFFFFF !important;
+  border-color: #E2E8F0 !important;
+}
+
+html:not(.dark) tbody tr:hover {
+  background-color: #F8FAFC !important;
+}
+
+html:not(.dark) tbody td {
+  color: #0F172A !important;
+  border-color: #E2E8F0 !important;
+}
+
+/* Anomaly alert rows and boxes in Light Mode */
+html:not(.dark) .bg-\[\#2D1B1E\] {
+  background-color: #FFF1F2 !important;
+  border-color: #FDA4AF !important;
+}
+
+html:not(.dark) .bg-\[\#18261F\] {
+  background-color: #F0FDF4 !important;
+  border-color: #86EFAC !important;
+}
+
+/* SVG Text elements inside Sparklines, Topology, and Map */
+html:not(.dark) svg text.fill-on-surface,
+html:not(.dark) svg text[fill="#F2F3F5"],
+html:not(.dark) svg text[fill="#CBD5E1"],
+html:not(.dark) svg text[fill="#F8FAFC"] {
+  fill: #0F172A !important;
+}
+
+html:not(.dark) svg text.fill-outline,
+html:not(.dark) svg text[fill="#9BA3AF"],
+html:not(.dark) svg text[fill="#9CA3AF"],
+html:not(.dark) svg text[fill="#6B7280"] {
+  fill: #334155 !important;
+}
+
+/* SVG backgrounds inside node tags */
+html:not(.dark) svg rect[fill="#181A22"],
+html:not(.dark) svg rect[fill="#0F1116"] {
+  fill: #F1F5F9 !important;
+  stroke: #CBD5E1 !important;
+}
+
+html:not(.dark) svg line[stroke="#2B2F3A"] {
+  stroke: #CBD5E1 !important;
+}
+
+html:not(.dark) svg pattern path {
+  stroke: #CBD5E1 !important;
+}
+
+
